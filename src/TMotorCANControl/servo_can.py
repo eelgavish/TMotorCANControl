@@ -52,6 +52,22 @@ Servo_Params = {
             'GEAR_RATIO': 9.0, 
             'Use_derived_torque_constants': False, # true if you have a better model
         },
+        'AK60-6':{
+            'P_min' : -32000,#-3200 deg
+            'P_max' : 32000,#3200 deg
+            'V_min' : -10000,#-100000 rpm electrical speed
+            'V_max' : 10000,# 100000 rpm electrical speed
+            'Curr_min':-1000,#-60A is the acutal limit but set to -15A
+            'Curr_max':1000,#60A is the acutal limit but set to 15A
+            'T_min' : -9,#NM
+            'T_max' : 9,#NM
+            'Kt_TMotor' : 0.135, # from TMotor website (actually 1/Kvll)
+            'Current_Factor' : 0.59, # UNTESTED CONSTANT!
+            # 'Kt_actual': 0.206, # UNTESTED CONSTANT!
+            'GEAR_RATIO': 6.0, 
+            'NUM_POLE_PAIRS': 14,
+            'Use_derived_torque_constants': False, # true if you have a better model
+        },
         'AK80-9':{
             'P_min' : -32000,#-3200 deg
             'P_max' : 32000,#3200 deg
@@ -409,6 +425,7 @@ class CAN_Manager_servo(object):
             controller_id: CAN ID of the motor to send the message to
             duty: duty cycle (-1 to 1) to use
         """
+        send_index = 0
         buffer=[]
         self.buffer_append_int32(buffer, np.int32(duty * 100000.0))
         self.send_servo_message(controller_id|(Servo_Params['CAN_PACKET_ID']['CAN_PACKET_SET_DUTY'] << 8), buffer, send_index)
@@ -423,6 +440,7 @@ class CAN_Manager_servo(object):
             controller_id: CAN ID of the motor to send the message to
             current: current in Amps to use (-60 to 60)
         """
+        send_index = 0
         buffer=[]
         self.buffer_append_int32(buffer, np.int32(current * 1000.0))
         self.send_servo_message(controller_id|(Servo_Params['CAN_PACKET_ID']['CAN_PACKET_SET_CURRENT'] << 8), buffer, send_index)
@@ -437,6 +455,7 @@ class CAN_Manager_servo(object):
             controller_id: CAN ID of the motor to send the message to
             current: current in Amps to use (0 to 60)
         """
+        send_index = 0
         buffer=[]
         self.buffer_append_int32(buffer, np.int32(current * 1000.0))
         self.send_servo_message(controller_id|(Servo_Params['CAN_PACKET_ID']['CAN_PACKET_SET_CURRENT_BRAKE'] << 8), buffer, send_index)
@@ -451,6 +470,7 @@ class CAN_Manager_servo(object):
             controller_id: CAN ID of the motor to send the message to
             rpm: velocity in ERPM (-100000 to 100000)
         """
+        send_index = 0
         buffer=[]
         self.buffer_append_int32(buffer, np.int32(rpm))
         self.send_servo_message(controller_id| (Servo_Params['CAN_PACKET_ID']['CAN_PACKET_SET_RPM'] << 8), buffer, send_index)
